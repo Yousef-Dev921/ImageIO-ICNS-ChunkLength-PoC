@@ -205,6 +205,10 @@ user-visible DoS. The log is in `evidence/ios/` for completeness.
   file with one malformed `ic13` chunk. It contains no executable code
   and no payload.
 
+## Author
+
+Yousef — [@yousef_dev921](https://x.com/yousef_dev921)
+
 ## License
 
 The text, scripts, and analysis in this repository are released under
