@@ -31,8 +31,10 @@ ICNS PoC (796 B)
                              (qlmanage peak footprint 7.9 MiB)
   NSBitmapImageRep:          no spike (unchanged)
 
-Legitimate ICNS control
+Legitimate ICNS control (Calendar.app's AppIcon.icns, 31,779 bytes)
   task_info resident delta:  +3.84 MiB, 4 images decoded
+  (the system icon changed on 27.0.1; the 26.5 control was the
+  31,408-byte version of the same file)
 ```
 
 **The multi-GiB memory commit no longer reproduces on macOS 27.0.1.**
@@ -70,8 +72,9 @@ What is not known:
 - in which release it shipped. Only 26.5 (affected) and 27.0.1 (not
   affected) were tested.
 
-Apple's security notes for macOS 27 list no ICNS or
-memory-exhaustion entry that can be matched to this report.
+The [macOS 27 security notes](https://support.apple.com/en-us/149035) list four ImageIO CVEs; none mentions
+ICNS or memory exhaustion, so none can be matched to this report.
+macOS 27.0.1 has [no published CVE entries](https://support.apple.com/en-us/100100).
 
 **Quick Look hang.** `qlmanage` still hangs on the PoC, but on macOS
 27.0.1 it also hangs on an 8-byte header-only `.icns` and on a broken
@@ -207,7 +210,3 @@ user-visible DoS. The log is in `evidence/ios/` for completeness.
 The text, scripts, and analysis in this repository are released under
 the MIT License — see [LICENSE](LICENSE). The PoC file in `pocs/` is
 provided for research and reproducibility only.
-
----
-
-Made with ❤️ by Yousef
