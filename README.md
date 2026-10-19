@@ -16,6 +16,35 @@ record. **No memory corruption or code execution is claimed.** The
 behaviour is a denial-of-service class issue: sustained resident
 commit.
 
+## Status on macOS 27.0.1
+
+Re-tested on 2026-10-19 on **macOS 27.0.1 (build 26A434)**, Mac17,3
+with Apple M5, 16 GiB RAM, using the same `verify.sh`
+(`evidence/macos-27.0.1/`):
+
+```
+ICNS PoC (796 B)
+  CGImageSource:             count=1, but image and thumbnail are NULL
+  task_info resident delta:  +2.41 to +2.66 MiB across 3 runs
+  /usr/bin/time -l peak:     2.83 MiB
+  qlmanage:                  hangs, no thumbnail, killed after 20 s
+                             (qlmanage peak footprint 7.9 MiB)
+  NSBitmapImageRep:          no spike (unchanged)
+
+Legitimate ICNS control
+  task_info resident delta:  +3.84 MiB, 4 images decoded
+```
+
+**The multi-GiB memory commit no longer reproduces on macOS 27.0.1.**
+ImageIO now rejects the malformed image instead of decoding it. It is
+not known whether this is a deliberate fix. One related symptom
+remains: Quick Look (`qlmanage`) hangs on the PoC without producing a
+thumbnail, while the legitimate control completes in 1 s. No Quick
+Look process was seen growing in memory during the hang. The hang was
+not investigated further.
+
+Everything below documents the original behaviour on macOS 26.5.
+
 ## Repository layout
 
 ```
@@ -29,6 +58,7 @@ evidence/     measurements.txt — captured run of verify.sh.
               nsimage/ — AppKit per-step reproducer (negative
               result: AppKit does not reach the spike).
               ios/ — iPhone test log (device IDs redacted).
+              macos-27.0.1/ — re-test on macOS 27.0.1.
 analysis/     icns-chunk-length.md — full write-up.
 ```
 

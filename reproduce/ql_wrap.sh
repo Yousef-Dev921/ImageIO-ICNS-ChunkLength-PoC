@@ -11,6 +11,13 @@ while kill -0 $QLPID 2>/dev/null && [ $WAITED -lt $SECS ]; do
    WAITED=$((WAITED+1))
 done
 if kill -0 $QLPID 2>/dev/null; then
+   # Kill qlmanage itself (killing only /usr/bin/time leaves it running),
+   # then give time a moment to report on the terminated process.
+   # $QLPID is normally /usr/bin/time; also cover a wrapping subshell.
+   for P in $QLPID $(pgrep -P "$QLPID"); do
+      pkill -9 -P "$P" -x qlmanage 2>/dev/null
+   done
+   sleep 1
    kill -9 "$QLPID" 2>/dev/null
    wait $QLPID 2>/dev/null
    echo "▲▲▲ qlmanage HUNG — killed after ${SECS}s (process never completed) ▲▲▲"
