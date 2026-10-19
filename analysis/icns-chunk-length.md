@@ -1,5 +1,9 @@
 # ICNS chunk walker in `ImageIO.framework`
 
+> All measurements in this document were taken on macOS 26.5 (25F71).
+> The behaviour no longer reproduces on macOS 27.0.1 (26A434); see the
+> status section of the README.
+
 ## Where the bug lives
 
 ```
@@ -15,7 +19,7 @@ different code path; see `evidence/nsimage/`.)
 
 The CGImageSource path accepts this malformed ICNS input and
 proceeds far enough to allocate/commit memory proportional to the
-attacker-controlled chunk length. As supplementary context I
+file-supplied chunk length. As supplementary context I
 include an lldb backtrace of the first large allocation observed
 during processing (`evidence/lldb-backtrace.txt`); the trace
 captures dyld/plugin-loading code inside the ImageIO reader
@@ -122,8 +126,9 @@ qlmanage peak memory footprint: 16,040,488      (15.3 MiB)
 qlmanage outcome:               thumbnail produced in 1 s
 ```
 
-A legitimate ICNS file 40× larger than the PoC uses ~170× less
-memory through the same code path. The behaviour is specific to
+A legitimate ICNS file 40× larger than the PoC uses about 160×
+(Quick Look) to 840× (`/usr/bin/time`) less memory through the same
+code path. The behaviour is specific to
 the malformed chunk-length field, not a general framework
 characteristic.
 
@@ -145,12 +150,14 @@ across re-runs.
 
 The same Preview.app, opening a legitimate ICNS file 60× larger
 (`AppIconLoc.icns`, 47,110 bytes), stays at about **117 MiB** —
-roughly 34× less memory from a 60× larger file, indicating the
-behaviour is input-specific.
+about 21× less than the PoC's consistent ~2.5 GiB peak (34× less
+than the single 4.0 GiB peak), from a 60× larger file. The behaviour
+is input-specific.
 
 A user double-clicking this 796-byte file in Finder triggers the
-Launch-Services-routed `Preview` launch tested above and silently
-consumes ~3 GiB of system RAM for the lifetime of the window.
+Launch-Services-routed `Preview` launch tested above. In that test
+Preview held about 2.5 GiB for the whole sampling period, with no
+visible indication to the user.
 
 ## Why this matters
 
@@ -158,11 +165,12 @@ The decode succeeds. A user double-clicking the file in Finder
 sees Preview.app open and display a normal-looking icon, and
 Quick Look thumbnail generation produces a thumbnail; in both
 cases the process has committed multi-gigabyte memory with no
-visible indication. On a 16 GiB Mac with several apps open, this
-can push the system into noticeable swap pressure.
+visible indication. On a 16 GiB Mac this is a large share of
+physical memory; the effect on overall system responsiveness was
+not measured.
 
 The PoC reaches the `qlmanage` / Quick Look thumbnail path; any
 system component that requests thumbnails for such files may incur
-this cost. Mail, AirDrop, and Files are plausible reachable surfaces
-given the shared Quick Look pipeline, but they are not measured
-here.
+this cost. Other macOS components that generate Quick Look
+thumbnails (for example Mail attachments or AirDrop) may share this
+pipeline, but they were not tested.
