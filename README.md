@@ -3,7 +3,8 @@
 A reproducible memory-exhaustion defect in the ICNS reader path of
 `ImageIO.framework` on **macOS 26.5 (build 25F71)** running on Apple
 Silicon. A **796-byte** ICNS file drives the decoder to commit about
-**2.37 GiB** of resident physical memory.
+**2.37 GiB** of resident physical memory. This no longer
+reproduces on macOS 27.0.1; see the status section below.
 
 The defect reaches the same code paths used by `qlmanage` (Quick Look
 thumbnails) and Preview.app. Double-clicking the malformed file in
@@ -36,12 +37,47 @@ Legitimate ICNS control
 ```
 
 **The multi-GiB memory commit no longer reproduces on macOS 27.0.1.**
-ImageIO now rejects the malformed image instead of decoding it. It is
-not known whether this is a deliberate fix. One related symptom
-remains: Quick Look (`qlmanage`) hangs on the PoC without producing a
-thumbnail, while the legitimate control completes in 1 s. No Quick
-Look process was seen growing in memory during the hang. The hang was
-not investigated further.
+ImageIO now rejects the malformed image instead of decoding it.
+
+### Is it fixed? Length-field variants
+
+To check whether the chunk length still drives memory with other
+inputs, 99 variants were tested
+(`evidence/macos-27.0.1/length-variants/`; `run.sh` regenerates them
+from the PoC and a system icon and re-runs everything):
+
+```
+Variant                                        images   resident
+PoC as-is (ic13 length 0x97979797)               0      2.45 MiB
+PoC with only the ic13 length set to fit         1      3.38 MiB  (decodes 256x256)
+Legitimate icon, first chunk length 0x97979797   1      3.58 MiB  (decodes normally)
+Legitimate icon, length = EOF + 1                1      3.66 MiB
+88 crafted files: 11 chunk types x 4 payload
+  formats x {0x97979797, EOF + 1}               0 or 1  2.36 – 3.28 MiB
+Largest value in the whole set                          3.83 MiB  (unmodified icon)
+```
+
+No variant commits more than a few MiB. A valid payload with the
+0x97979797 length decodes normally, and an invalid one is rejected.
+Either way, **on macOS 27.0.1 the chunk-length field no longer
+controls the allocation size.** The PoC alone becomes a normal 256×256
+image once its length field is corrected. The behaviour described
+below is therefore fixed in practice.
+
+What is not known:
+
+- whether the change was a deliberate fix;
+- in which release it shipped. Only 26.5 (affected) and 27.0.1 (not
+  affected) were tested.
+
+Apple's security notes for macOS 27 list no ICNS or
+memory-exhaustion entry that can be matched to this report.
+
+**Quick Look hang.** `qlmanage` still hangs on the PoC, but on macOS
+27.0.1 it also hangs on an 8-byte header-only `.icns` and on a broken
+`.png`. It produces a thumbnail for the length-corrected PoC. The hang
+is general `qlmanage` behaviour for files it cannot thumbnail, not a
+remnant of this finding.
 
 Everything below documents the original behaviour on macOS 26.5.
 
@@ -58,7 +94,8 @@ evidence/     measurements.txt — captured run of verify.sh.
               nsimage/ — AppKit per-step reproducer (negative
               result: AppKit does not reach the spike).
               ios/ — iPhone test log (device IDs redacted).
-              macos-27.0.1/ — re-test on macOS 27.0.1.
+              macos-27.0.1/ — re-test on macOS 27.0.1, including
+              length-variants/ (fix check).
 analysis/     icns-chunk-length.md — full write-up.
 ```
 

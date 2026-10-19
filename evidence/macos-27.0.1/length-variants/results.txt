@@ -1,0 +1,114 @@
+OS:      macOS 27.0.1 (26A434)
+Model:   Mac17,3, Apple M5
+Control: AppIcon.icns (31779 bytes)
+
+variant                              images  resident delta
+------------------------------------------------------------
+G1_patterned                              1      3.47 MiB
+G2_header_only                            0      2.28 MiB
+L0_legit                                  4      3.83 MiB
+L1_legit_firstlen_BIG                     1      3.58 MiB
+L2_single_first_chunk                     1      3.61 MiB
+L3_single_firstlen_BIG                    1      3.61 MiB
+L4_single_firstlen_EOFplus1               1      3.66 MiB
+L5_single_hdrtotal_BIG                    1      3.64 MiB
+M_ic04_argb_BIG                           0      2.42 MiB
+M_ic04_argb_EOF1                          1      2.91 MiB
+M_ic04_jp2_BIG                            0      2.44 MiB
+M_ic04_jp2_EOF1                           0      2.44 MiB
+M_ic04_junk_BIG                           0      2.56 MiB
+M_ic04_junk_EOF1                          1      3.02 MiB
+M_ic04_png_BIG                            0      2.42 MiB
+M_ic04_png_EOF1                           1      2.97 MiB
+M_ic05_argb_BIG                           0      2.44 MiB
+M_ic05_argb_EOF1                          1      2.94 MiB
+M_ic05_jp2_BIG                            0      2.41 MiB
+M_ic05_jp2_EOF1                           0      2.44 MiB
+M_ic05_junk_BIG                           0      2.39 MiB
+M_ic05_junk_EOF1                          1      3.00 MiB
+M_ic05_png_BIG                            0      2.36 MiB
+M_ic05_png_EOF1                           1      2.97 MiB
+M_ic07_argb_BIG                           0      2.45 MiB
+M_ic07_argb_EOF1                          1      3.12 MiB
+M_ic07_jp2_BIG                            0      2.44 MiB
+M_ic07_jp2_EOF1                           0      2.41 MiB
+M_ic07_junk_BIG                           0      2.45 MiB
+M_ic07_junk_EOF1                          1      3.11 MiB
+M_ic07_png_BIG                            0      2.42 MiB
+M_ic07_png_EOF1                           1      3.12 MiB
+M_ic08_argb_BIG                           0      2.39 MiB
+M_ic08_argb_EOF1                          1      3.12 MiB
+M_ic08_jp2_BIG                            0      2.41 MiB
+M_ic08_jp2_EOF1                           0      2.41 MiB
+M_ic08_junk_BIG                           0      2.42 MiB
+M_ic08_junk_EOF1                          1      3.12 MiB
+M_ic08_png_BIG                            0      2.45 MiB
+M_ic08_png_EOF1                           1      3.12 MiB
+M_ic09_argb_BIG                           0      2.42 MiB
+M_ic09_argb_EOF1                          1      3.22 MiB
+M_ic09_jp2_BIG                            0      2.52 MiB
+M_ic09_jp2_EOF1                           0      2.52 MiB
+M_ic09_junk_BIG                           0      2.39 MiB
+M_ic09_junk_EOF1                          1      3.22 MiB
+M_ic09_png_BIG                            0      2.42 MiB
+M_ic09_png_EOF1                           1      3.22 MiB
+M_ic10_argb_BIG                           0      2.39 MiB
+M_ic10_argb_EOF1                          1      3.28 MiB
+M_ic10_jp2_BIG                            0      2.41 MiB
+M_ic10_jp2_EOF1                           0      2.44 MiB
+M_ic10_junk_BIG                           0      2.42 MiB
+M_ic10_junk_EOF1                          1      3.25 MiB
+M_ic10_png_BIG                            0      2.48 MiB
+M_ic10_png_EOF1                           1      3.27 MiB
+M_ic13_argb_BIG                           0      2.53 MiB
+M_ic13_argb_EOF1                          1      3.12 MiB
+M_ic13_jp2_BIG                            0      2.47 MiB
+M_ic13_jp2_EOF1                           0      2.44 MiB
+M_ic13_junk_BIG                           0      2.39 MiB
+M_ic13_junk_EOF1                          1      3.12 MiB
+M_ic13_png_BIG                            0      2.39 MiB
+M_ic13_png_EOF1                           1      3.05 MiB
+M_ic14_argb_BIG                           0      2.50 MiB
+M_ic14_argb_EOF1                          1      3.25 MiB
+M_ic14_jp2_BIG                            0      2.39 MiB
+M_ic14_jp2_EOF1                           0      2.42 MiB
+M_ic14_junk_BIG                           0      2.50 MiB
+M_ic14_junk_EOF1                          1      3.28 MiB
+M_ic14_png_BIG                            0      2.45 MiB
+M_ic14_png_EOF1                           1      3.22 MiB
+M_icp4_argb_BIG                           0      2.48 MiB
+M_icp4_argb_EOF1                          1      3.03 MiB
+M_icp4_jp2_BIG                            0      2.47 MiB
+M_icp4_jp2_EOF1                           0      2.45 MiB
+M_icp4_junk_BIG                           0      2.48 MiB
+M_icp4_junk_EOF1                          1      3.03 MiB
+M_icp4_png_BIG                            0      2.48 MiB
+M_icp4_png_EOF1                           1      2.94 MiB
+M_is32_argb_BIG                           0      2.45 MiB
+M_is32_argb_EOF1                          1      3.02 MiB
+M_is32_jp2_BIG                            0      2.52 MiB
+M_is32_jp2_EOF1                           0      2.47 MiB
+M_is32_junk_BIG                           0      2.47 MiB
+M_is32_junk_EOF1                          1      2.98 MiB
+M_is32_png_BIG                            0      2.45 MiB
+M_is32_png_EOF1                           1      3.03 MiB
+M_it32_argb_BIG                           0      2.45 MiB
+M_it32_argb_EOF1                          1      3.19 MiB
+M_it32_jp2_BIG                            0      2.44 MiB
+M_it32_jp2_EOF1                           0      2.42 MiB
+M_it32_junk_BIG                           0      2.39 MiB
+M_it32_junk_EOF1                          1      3.05 MiB
+M_it32_png_BIG                            0      2.42 MiB
+M_it32_png_EOF1                           1      3.08 MiB
+P0_poc                                    0      2.45 MiB
+P1_poc_ic13len_fits                       1      3.38 MiB
+P2_poc_hdrtotal_fixed                     0      2.50 MiB
+
+Quick Look (qlmanage, 12 s budget each)
+------------------------------------------------------------
+P0_poc.icns                          hung (killed after 12 s)
+P1_poc_ic13len_fits.icns             thumbnail produced
+L3_single_firstlen_BIG.icns          thumbnail produced
+G1_patterned.icns                    thumbnail produced
+G2_header_only.icns                  hung (killed after 12 s)
+G3_broken.png                        hung (killed after 12 s)
