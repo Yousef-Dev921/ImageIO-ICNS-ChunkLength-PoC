@@ -1,0 +1,9 @@
+=== ImageProbe v2 boot 2026-05-22 17:19:25 +0000 ===
+[VM before] virt=391.12 GiB resid=43.12 MiB phys=5.88 MiB
+probe image bytes=796
+  [after CreateWithData] resid=43.27 MiB (Δ=+144.00 KiB)
+  [after CopyProperties] resid=43.64 MiB (Δ=+528.00 KiB) props=0x105e9c8e0
+  count=1
+  [after CreateImage[0]] resid=43.92 MiB (Δ=+816.00 KiB) img=0x105d7d040
+  [after CreateThumb[0]] resid=44.17 MiB (Δ=+1.05 MiB) thumb=0x105d7d900
+[VM after] virt=393.49 GiB resid=44.14 MiB phys=6.13 MiB (Δresid=+1.02 MiB)

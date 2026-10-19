@@ -1,0 +1,2 @@
+# PoC integrity (SHA-256)
+b763be5b017835f80e7ca2614f5d837cde73e2790e3ae70d930a2deef34ad9ff  icns.icns

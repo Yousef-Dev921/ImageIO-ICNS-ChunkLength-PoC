@@ -1,0 +1,215 @@
+# Excerpt of a verify.sh capture taken on 2026-05-22. That session also
+# measured a separate, unrelated test case; its sections were removed.
+# Every remaining line is verbatim from the original capture.
+
+================================================================
+  Verification report
+================================================================
+Date:        2026-05-22 18:25:14 UTC
+Host model:  Mac15,12
+Hardware:    Apple M3, 16 GiB RAM
+Kernel arch: 25F71 - arm64
+OS:          macOS 26.5 (25F71)
+Shell arch:  arm64 (uname -m: arm64)
+
+(building vm_probe from source: <repo>/reproduce/vm_probe.m -> <repo>/reproduce/vm_probe)
+<repo>/reproduce/vm_probe: Mach-O 64-bit executable arm64
+================================================================
+  Binary architecture verification
+================================================================
+
+vm_probe (the measurement tool):
+<repo>/reproduce/vm_probe: Mach-O 64-bit executable arm64
+  on-the-fly arch check when executed:
+    __aarch64__ = yes (compiled for arm64)
+    sysctl.proc_translated = 0 (0=native, 1=Rosetta)
+
+================================================================
+  PoC integrity
+================================================================
+b763be5b017835f80e7ca2614f5d837cde73e2790e3ae70d930a2deef34ad9ff  <repo>/pocs/icns.icns
+
+Expected from SHA256SUMS.txt:
+# PoC integrity (SHA-256)
+b763be5b017835f80e7ca2614f5d837cde73e2790e3ae70d930a2deef34ad9ff  icns.icns
+
+================================================================
+  Method #1 — task_info(TASK_VM_INFO)
+  Three back-to-back runs each.
+================================================================
+----------------------------------------------------------------
+  Run 1/3 — ICNS PoC
+  file:   icns.icns
+  size:   796 bytes
+----------------------------------------------------------------
+[before] virtual=415.13 GiB resident=6.70 MiB phys_footprint=1.42 MiB peak_resid=6.70 MiB
+[probe] kind=image file=<repo>/pocs/icns.icns bytes=796
+  CGImageSourceCopyProperties -> 0x1011ed660
+  count=1
+  [0] image=0x1012027f0
+  [0] thumb=0x101204e90
+[after]  virtual=417.57 GiB resident=2.38 GiB phys_footprint=2.37 GiB peak_resid=2.38 GiB
+[peak]   virtual_high_water=417.57 GiB resident_high_water=2.38 GiB
+[delta]  virtual=+2612084736 resident=+2546155520
+[peak delta] virtual_peak=+2613084160 resident_peak=+2546368512
+
+----------------------------------------------------------------
+  Run 2/3 — ICNS PoC
+  file:   icns.icns
+  size:   796 bytes
+----------------------------------------------------------------
+[before] virtual=415.13 GiB resident=6.70 MiB phys_footprint=1.42 MiB peak_resid=6.70 MiB
+[probe] kind=image file=<repo>/pocs/icns.icns bytes=796
+  CGImageSourceCopyProperties -> 0x1013d5660
+  count=1
+  [0] image=0x1013ea7f0
+  [0] thumb=0x1013ece90
+[after]  virtual=417.57 GiB resident=2.38 GiB phys_footprint=2.37 GiB peak_resid=2.38 GiB
+[peak]   virtual_high_water=417.57 GiB resident_high_water=2.38 GiB
+[delta]  virtual=+2612084736 resident=+2546089984
+[peak delta] virtual_peak=+2613084160 resident_peak=+2546368512
+
+----------------------------------------------------------------
+  Run 3/3 — ICNS PoC
+  file:   icns.icns
+  size:   796 bytes
+----------------------------------------------------------------
+[before] virtual=415.13 GiB resident=6.70 MiB phys_footprint=1.42 MiB peak_resid=6.70 MiB
+[probe] kind=image file=<repo>/pocs/icns.icns bytes=796
+  CGImageSourceCopyProperties -> 0x105061660
+  count=1
+  [0] image=0x1050767f0
+  [0] thumb=0x105078e90
+[after]  virtual=417.57 GiB resident=2.38 GiB phys_footprint=2.37 GiB peak_resid=2.38 GiB
+[peak]   virtual_high_water=417.57 GiB resident_high_water=2.38 GiB
+[delta]  virtual=+2612264960 resident=+2546139136
+[peak delta] virtual_peak=+2613264384 resident_peak=+2545369088
+
+================================================================
+  Method #1 control — legitimate files for fair comparison
+================================================================
+----------------------------------------------------------------
+  Control: legitimate ICNS
+  file:   AppIcon.icns
+  size:   31408 bytes
+----------------------------------------------------------------
+[before] virtual=415.13 GiB resident=6.73 MiB phys_footprint=1.45 MiB peak_resid=6.73 MiB
+[probe] kind=image file=/System/Applications/Calendar.app/Contents/Resources/AppIcon.icns bytes=31408
+  CGImageSourceCopyProperties -> 0x100cb4470
+  count=4
+  [0] image=0x100cba870
+  [0] thumb=0x100cbc6d0
+  [1] image=0x100cbc080
+  [1] thumb=0x9d2c94140
+  [2] image=0x9d2c94000
+  [2] thumb=0x9d2c94500
+  [3] image=0x9d2c94500
+  [3] thumb=0x9d2c94280
+[after]  virtual=415.20 GiB resident=10.12 MiB phys_footprint=2.83 MiB peak_resid=10.42 MiB
+[peak]   virtual_high_water=415.20 GiB resident_high_water=9.97 MiB
+[delta]  virtual=+72974336 resident=+3555328
+[peak delta] virtual_peak=+73973760 resident_peak=+3391488
+
+================================================================
+  Method #2 — /usr/bin/time -l peak memory footprint
+  (independent measurement using getrusage)
+================================================================
+naked reproducer binary:  Mach-O 64-bit executable arm64
+
+▼ ICNS PoC ▼
+        0.24 real         0.04 user         0.14 sys
+          2553888768  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              156098  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                1146  involuntary context switches
+          1380517127  instructions retired
+           587153254  cycles elapsed
+          2547501312  peak memory footprint
+
+▼ Control (legitimate ICNS) ▼
+        0.01 real         0.00 user         0.00 sys
+            10846208  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 874  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  55  involuntary context switches
+            65464202  instructions retired
+            30724899  cycles elapsed
+             3047904  peak memory footprint
+
+================================================================
+  Method #3 — Apple qlmanage (Quick Look thumbnailer)
+================================================================
+
+▼ qlmanage thumbnailing the ICNS PoC (20s budget) ▼
+  (qlmanage completed in 1s)
+Testing Quick Look thumbnails with files:
+	/tmp/qlcheck/icns_poc.icns
+* /tmp/qlcheck/icns_poc.icns produced one thumbnail
+Done producing thumbnails
+        0.51 real         0.07 user         0.23 sys
+          2448719872  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              157512  page reclaims
+                   2  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   9  voluntary context switches
+                2005  involuntary context switches
+          1634212699  instructions retired
+           849128588  cycles elapsed
+          2560690480  peak memory footprint
+
+▼ qlmanage thumbnailing the Control ICNS (20s budget) ▼
+  (qlmanage completed in 1s)
+Testing Quick Look thumbnails with files:
+	/tmp/qlcheck/control.icns
+* /tmp/qlcheck/control.icns produced one thumbnail
+Done producing thumbnails
+        0.05 real         0.02 user         0.01 sys
+            29786112  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2226  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   2  voluntary context switches
+                 176  involuntary context switches
+           310646746  instructions retired
+           124565886  cycles elapsed
+            16040488  peak memory footprint
+
+================================================================
+  Verification complete.
+================================================================

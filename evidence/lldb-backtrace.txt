@@ -1,0 +1,69 @@
+================================================================
+  lldb backtrace of the large allocation while decoding ICNS PoC
+================================================================
+Captured on macOS 26.5 (build 25F71), Apple M3, arm64.
+Methodology: Python-scripted lldb breakpoints on `malloc` and
+`calloc`. Filter: print backtrace for any request ≥ 100 MiB.
+Target program: a standalone arm64 reproducer that calls
+  CGImageSourceCreateWithData(... kCGImageSourceShouldCacheImmediately ...)
+  CGImageSourceCopyProperties
+  CGImageSourceGetCount + CreateImageAtIndex
+on `pocs/icns.icns`.
+
+Captured allocation (first observed >100 MiB):
+
+  malloc(8,445,259,240) ≈ 7.87 GiB
+   #0 dyld4::LibSystemHelpers::malloc(unsigned long) const
+   #1 dyld4::APIs::setErrorString(char const*, ...)
+   #2 dyld4::APIs::dlopen_from
+   #3 dyld4::RuntimeLocks::withLoadersWriteLockAndProtectedStack<...>
+   #4 dyld4::APIs::dlopen_from (continued)
+   #5 dyld4::APIs::dlopen
+   #6 IIO_ReaderHandler::buildPluginList()
+   #7 IIO_ReaderHandler::IIO_ReaderHandler()
+   #8 invocation function for block in IIO_ReaderHandler::GetReaderHandler()
+   #9 _dispatch_client_callout
+   #10 _dispatch_once_callout
+   #11 IIO_ReaderHandler::GetReaderHandler()
+   #12 IIOImageSource::doBindToReader()
+   #13 IIOImageSource::getPropertiesInternal(IIODictionary*)
+   #14 IIOImageSource::copyProperties(IIODictionary*)
+   #15 CGImageSourceCopyProperties
+   #16 main
+
+OBSERVATIONS
+─────────────────────────────────────────────────────────
+1. The first large allocation captured comes from
+   `dyld4::APIs::setErrorString` inside a `dlopen_from` call
+   originating from `IIO_ReaderHandler::buildPluginList`. This
+   is dyld's error-message formatting path triggered while
+   ImageIO is loading reader plugins for the source.
+
+2. The requested 7.87 GiB is roughly 3.3× the value of the
+   PoC's `ic13` chunk length (0x97979797 = 2.37 GiB). So the
+   ICNS chunk-length value is plausibly the driver of this
+   allocation size through some derived calculation, but I
+   cannot confirm the exact derivation from this trace alone.
+
+3. The function I originally named in earlier drafts,
+   `ICNSReadPlugin::decodeImageData`, was identified from the
+   stack traces of an earlier libFuzzer-generated artifact (a
+   different, also-ICNS PoC). For the specific PoC in this
+   repository (icns.icns, SHA-256 b763be5b...) I do not have
+   a captured stack showing `ICNSReadPlugin::decodeImageData`.
+   The captured chain reaches the chunk-aware decoder
+   indirectly through `IIOImageSource::doBindToReader →
+   buildPluginList`.
+
+4. The 7.87 GiB requested allocation does not match the
+   measured ~2.37 GiB resident commit — the kernel commits
+   only the pages actually touched, which is consistent with
+   a request larger than what is subsequently used.
+
+CLAIM ADJUSTMENT
+─────────────────────────────────────────────────────────
+The ICNS finding is described as a chunk-length-not-bounded
+class defect observed through the CGImageSource path, without
+naming `ICNSReadPlugin::decodeImageData` as the specific
+allocation site. The runtime evidence above is what is
+available without source/symbol access.

@@ -1,0 +1,79 @@
+# Excerpt: this capture session also covered a separate, unrelated
+# test case; its sections were removed. Remaining lines are verbatim.
+
+================================================================
+  Preview.app evidence (default image viewer on macOS)
+================================================================
+
+Captured: 2026-05-22, native arm64 on macOS 26.5 (25F71), Apple M3
+Methodology: file opened via Launch Services, then `ps -o rss`
+sampled every 500 ms for 6–15 seconds while Preview decoded and
+displayed the file. Memory shown in MiB (1024 KiB).
+
+Two launch methods tested for the malicious ICNS PoC, to confirm
+the spike is not unique to a single CLI invocation pattern:
+
+  (a) `open -a Preview <file>`       — programmatic launch
+  (b) `open <file>`                  — Launch Services routes to
+                                        the default app, which is
+                                        the same code path Finder
+                                        uses when a user
+                                        double-clicks the file.
+
+
+TEST 1a — Malicious ICNS PoC (796 bytes) via `open -a Preview`
+─────────────────────────────────────────────────────────
+   [1] Preview rss=4 MB    (just launched)
+   [2] Preview rss=1906 MB
+   [3] Preview rss=2449 MB
+   [4] Preview rss=2521 MB
+   ...
+   [9] Preview rss=4034 MB    ← PEAK ≈ 4.0 GiB
+   ...
+   [20+] Preview rss=2869 MB  ← settled at ~2.8 GiB in this run
+
+  Reproducibility note: the 4.0 GiB peak in this captured run is not
+  deterministic — separate re-runs on the same input (clean Preview
+  state, persistence disabled) have peaked at ~2.5 GiB and settled
+  around 1.7–2.5 GiB without reaching 4 GiB. The multi-GiB commit
+  itself is consistent across re-runs; the exact peak value is not.
+  Expect ≥2.5 GiB consistently and ~4 GiB intermittently.
+
+
+TEST 1b — Same PoC via `open` (Launch Services default = double-click)
+─────────────────────────────────────────────────────────
+   [1] Preview rss=10 MB
+   [2] Preview rss=1811 MB
+   [3] Preview rss=2501 MB
+   [4] Preview rss=2524 MB
+   [5] Preview rss=2525 MB
+   ...
+   [12] Preview rss=2524 MB
+
+Same behaviour as Test 1a. The spike is reproduced via the Launch
+Services default-app pathway, which is the same mechanism Finder
+invokes on a double-click; therefore the user-visible scenario
+"double-click the file in Finder" reproduces this.
+
+
+TEST 3 — Legitimate ICNS control (47 KB, Dictionary.app icon)
+─────────────────────────────────────────────────────────
+   [1] Preview rss=4 MB
+   [2] Preview rss=105 MB
+   [3..10] Preview rss=105-117 MB  ← stable at ~117 MiB
+
+A legitimate ICNS file 60× larger than the PoC uses ~34× less
+memory in the same Preview.app process. The behaviour is
+input-specific.
+
+
+SUMMARY
+─────────────────────────────────────────────────────────
+ICNS PoC opens in Preview.app with multi-GiB memory use:
+  - via `open -a Preview`: ≥2.5 GiB peak consistently, sustained multi-GiB;
+    one captured run reached 4.0 GiB peak / 2.8 GiB sustained
+    (that exact peak is not deterministic — see TEST 1a note)
+  - via `open file` (Launch Services default, same routing Finder
+    uses on double-click): peak ~2.5 GiB, consistent across re-runs
+Legitimate ICNS opens to ~117 MiB — the behaviour is specific to
+   the malformed chunk-length field, not a Preview characteristic.
